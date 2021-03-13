@@ -1,0 +1,5 @@
+python_telegram_bot==5.3.0
+feedparser==5.2.1
+telegram==0.0.1
+asyncio==3.4.3
+telebot==0.0.4
