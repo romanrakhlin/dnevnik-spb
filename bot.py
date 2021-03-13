@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import telebot
 from telebot import types
 from collections import defaultdict
@@ -5,8 +7,8 @@ import datetime as dt
 import json
 from pathlib import Path
 import pickle
-import pip._vendor.requests as requests
-import pip._vendor.toml as toml
+import requests
+import toml
 import sys
 import asyncio
 import datetime
@@ -103,7 +105,7 @@ def handle_text(message):
         day = day_d + "." + month_d + "." + year_d
 
         # Отправляем
-        text = showMarks(cur, day)
+        text = asyncio.run(showMarks(cur, day))
         bot.send_message(message.chat.id, text, parse_mode="HTML")
     elif message.text == "Оценки за Неделю":
         # Создаем сегодняшнюю и неделю назад
@@ -125,7 +127,7 @@ def handle_text(message):
         week = day_w + "." + month_w + "." + year_w
 
         # Отправляем
-        text = showMarks(week, cur)
+        text = asyncio.run(showMarks(week, cur))
         bot.send_message(message.chat.id, text, parse_mode="HTML")
     elif message.text == "Оценки за Месяц":
         # Создаем сегодняшнюю и неделю назад
@@ -147,10 +149,10 @@ def handle_text(message):
         month = day_m + "." + month_m + "." + year_m
 
         # Отправляем
-        text = showMarks(month, cur)
+        text = asyncio.run(showMarks(month, cur))
         bot.send_message(message.chat.id, text, parse_mode="HTML")
     elif message.text == "Мой Средний Балл":
-        text = showAverage()
+        text = asyncio.run(showAverage())
         bot.send_message(message.chat.id, text, parse_mode="HTML")
     elif message.text == "Получилось":
         msg = bot.send_message(message.chat.id, "Укажите ваше ID")
