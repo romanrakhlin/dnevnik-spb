@@ -104,7 +104,7 @@ def handle_text(message):
 
         # Отправляем
         loop = asyncio.get_event_loop()
-        text = loop.run_until_complete(asyncio.wait(showMarks(cur, day)))
+        text = loop.run_until_complete(showMarks(cur, day))
         bot.send_message(message.chat.id, text, parse_mode="HTML")
     elif message.text == "Оценки за Неделю":
         # Создаем сегодняшнюю и неделю назад
@@ -127,7 +127,7 @@ def handle_text(message):
 
         # Отправляем
         loop = asyncio.get_event_loop()
-        text = loop.run_until_complete(asyncio.wait(showMarks(week, cur)))
+        text = loop.run_until_complete(showMarks(week, cur))
         bot.send_message(message.chat.id, text, parse_mode="HTML")
     elif message.text == "Оценки за Месяц":
         # Создаем сегодняшнюю и неделю назад
@@ -150,11 +150,11 @@ def handle_text(message):
 
         # Отправляем
         loop = asyncio.get_event_loop()
-        text = loop.run_until_complete(asyncio.wait(showMarks(month, cur)))
+        text = loop.run_until_complete(showMarks(month, cur))
         bot.send_message(message.chat.id, text, parse_mode="HTML")
     elif message.text == "Мой Средний Балл":
         loop = asyncio.get_event_loop()
-        text = loop.run_until_complete(asyncio.wait(showAverage()))
+        text = loop.run_until_complete(showAverage())
         bot.send_message(message.chat.id, text, parse_mode="HTML")
     elif message.text == "Получилось":
         msg = bot.send_message(message.chat.id, "Укажите ваше ID")
