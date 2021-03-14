@@ -12,6 +12,7 @@ import toml
 import sys
 import asyncio
 import datetime
+from urllib.error import HTTPError
 
 # Константы
 bot = telebot.TeleBot("1663223257:AAEUtGJ4JXyuyz9k3YG5WJeCdum9iZbgoSg")
@@ -105,7 +106,10 @@ def handle_text(message):
         day = day_d + "." + month_d + "." + year_d
 
         # Отправляем
-        text = asyncio.run(showMarks(cur, day))
+        try:
+            text = asyncio.run(showMarks(cur, day))
+        except:
+            text = "В настоящее время на портале «Петербургское образование» ведутся технические работы. В ближайшее время портал возобновит свою работу. Приносим свои извинения за доставленные неудобства."
         bot.send_message(message.chat.id, text, parse_mode="HTML")
     elif message.text == "Оценки за Неделю":
         # Создаем сегодняшнюю и неделю назад
@@ -127,7 +131,10 @@ def handle_text(message):
         week = day_w + "." + month_w + "." + year_w
 
         # Отправляем
-        text = asyncio.run(showMarks(week, cur))
+        try:
+            text = asyncio.run(showMarks(week, cur))
+        except:
+            text = "В настоящее время на портале «Петербургское образование» ведутся технические работы. В ближайшее время портал возобновит свою работу. Приносим свои извинения за доставленные неудобства."
         bot.send_message(message.chat.id, text, parse_mode="HTML")
     elif message.text == "Оценки за Месяц":
         # Создаем сегодняшнюю и неделю назад
@@ -149,10 +156,16 @@ def handle_text(message):
         month = day_m + "." + month_m + "." + year_m
 
         # Отправляем
-        text = asyncio.run(showMarks(month, cur))
+        try:
+            text = asyncio.run(showMarks(month, cur))
+        except:
+            text = "В настоящее время на портале «Петербургское образование» ведутся технические работы. В ближайшее время портал возобновит свою работу. Приносим свои извинения за доставленные неудобства."
         bot.send_message(message.chat.id, text, parse_mode="HTML")
     elif message.text == "Мой Средний Балл":
-        text = asyncio.run(showAverage())
+        try:
+            text = asyncio.run(showAverage())
+        except:
+            text = "В настоящее время на портале «Петербургское образование» ведутся технические работы. В ближайшее время портал возобновит свою работу. Приносим свои извинения за доставленные неудобства."
         bot.send_message(message.chat.id, text, parse_mode="HTML")
     elif message.text == "Получилось":
         msg = bot.send_message(message.chat.id, "Укажите ваше ID")
@@ -213,101 +226,93 @@ def to_date(text):
 
 # Функция вывода оценок
 async def showMarks(from_date, till_date):
-    try:
-        result = "<u>Вот твои оценки</u>\n"
+    result = "<u>Вот твои оценки</u>\n"
 
-        config['urls']['marks_for_period']['params']["p_date_from"] = from_date
-        config['urls']['marks_for_period']['params']["p_date_to"] = till_date
+    config['urls']['marks_for_period']['params']["p_date_from"] = from_date
+    config['urls']['marks_for_period']['params']["p_date_to"] = till_date
 
-        session = requests.Session()
-        for header in headers:
-            session.headers[header['name']] = header['value']
+    session = requests.Session()
+    for header in headers:
+        session.headers[header['name']] = header['value']
 
-        url = config['urls']['marks_for_period']['url']
-        params = config['urls']['marks_for_period']['params']
+    url = config['urls']['marks_for_period']['url']
+    params = config['urls']['marks_for_period']['params']
 
-        with session.get(url, params=params) as res:
-            res.raise_for_status()
-            text = res.text
-            data = res.json()
+    with session.get(url, params=params) as res:
+        res.raise_for_status()
+        text = res.text
+        data = res.json()
 
-        out_lines = []
-        grouped = defaultdict(list)
-        for item in sorted(data['data']['items'], key=lambda x: (to_date(x['date']), x['estimate_value_name'])):
-            s_name = item['subject_name'] = get_subject(item)
-            mark = item['estimate_value_name']
-            if mark.isdigit():
-                grouped[s_name].append(int(mark))
-            comment = ('# ' + item['estimate_comment']) if item['estimate_comment'] else ''
-            out_lines.append(("*{subject_name}* - {estimate_value_code}".format(**item), comment))
+    out_lines = []
+    grouped = defaultdict(list)
+    for item in sorted(data['data']['items'], key=lambda x: (to_date(x['date']), x['estimate_value_name'])):
+        s_name = item['subject_name'] = get_subject(item)
+        mark = item['estimate_value_name']
+        if mark.isdigit():
+            grouped[s_name].append(int(mark))
+        comment = ('# ' + item['estimate_comment']) if item['estimate_comment'] else ''
+        out_lines.append(("*{subject_name}* - {estimate_value_code}".format(**item), comment))
 
-        if not out_lines:
-            return "Извините, к сожаленю у вас нет оценок за сегодня"
+    if not out_lines:
+        return "Извините, к сожаленю у вас нет оценок за сегодня"
 
-        arr = []
-        for s_name in sorted(grouped):
-            s_marks = ' '.join(str(mark) for mark in grouped[s_name])
-            arr.append("<strong>" + str(s_name) + "</strong>" + " - " + "<em>" + str(s_marks) + "</em>")
+    arr = []
+    for s_name in sorted(grouped):
+        s_marks = ' '.join(str(mark) for mark in grouped[s_name])
+        arr.append("<strong>" + str(s_name) + "</strong>" + " - " + "<em>" + str(s_marks) + "</em>")
 
-        for i in arr:
-            if i not in result:
-                result += str(i) + "\n"
-    except HTTPError as e:
-        if e.code == 502:
-            return "В настоящее время на портале «Петербургское образование» ведутся технические работы. В ближайшее время портал возобновит свою работу. Приносим свои извинения за доставленные неудобства."
-        else:
-            return result
+    for i in arr:
+        if i not in result:
+            result += str(i) + "\n"
+
+    return result
 
 # Функция вывода среднего балла
 async def showAverage():
-    try:
-        result = "<u>Вот твой средний балл</u>\n"
+    result = "<u>Вот твой средний балл</u>\n"
 
-        config['urls']['marks_for_period']['params']["p_date_from"] = "01.01.2021"
-        config['urls']['marks_for_period']['params']["p_date_to"] = "30.05.2021"
+    config['urls']['marks_for_period']['params']["p_date_from"] = "01.01.2021"
+    config['urls']['marks_for_period']['params']["p_date_to"] = "30.05.2021"
 
-        session = requests.Session()
-        for header in headers:
-            session.headers[header['name']] = header['value']
+    session = requests.Session()
+    for header in headers:
+        session.headers[header['name']] = header['value']
 
-        url = config['urls']['marks_for_period']['url']
-        params = config['urls']['marks_for_period']['params']
+    url = config['urls']['marks_for_period']['url']
+    params = config['urls']['marks_for_period']['params']
 
-        with session.get(url, params=params) as res:
-            res.raise_for_status()
-            text = res.text
-            data = res.json()
+    with session.get(url, params=params) as res:
+        res.raise_for_status()
+        text = res.text
+        data = res.json()
 
-        out_lines = []
-        grouped = defaultdict(list)
-        for item in sorted(data['data']['items'], key=lambda x: (to_date(x['date']), x['estimate_value_name'])):
-            s_name = item['subject_name'] = get_subject(item)
-            mark = item['estimate_value_name']
-            if mark.isdigit():
-                grouped[s_name].append(int(mark))
-            comment = ('# ' + item['estimate_comment']) if item['estimate_comment'] else ''
-            out_lines.append((
-                to_date(item['date']),
-                "{subject_name:25s} {estimate_value_code:5s} {estimate_value_name:9s} {estimate_type_name:20s}".format(**item),
-                comment
-            ))
+    out_lines = []
+    grouped = defaultdict(list)
+    for item in sorted(data['data']['items'], key=lambda x: (to_date(x['date']), x['estimate_value_name'])):
+        s_name = item['subject_name'] = get_subject(item)
+        mark = item['estimate_value_name']
+        if mark.isdigit():
+            grouped[s_name].append(int(mark))
+        comment = ('# ' + item['estimate_comment']) if item['estimate_comment'] else ''
+        out_lines.append((
+            to_date(item['date']),
+            "{subject_name:25s} {estimate_value_code:5s} {estimate_value_name:9s} {estimate_type_name:20s}".format(**item),
+            comment
+        ))
 
-        if not out_lines:
-            exit(1)
+    if not out_lines:
+        exit(1)
 
-        arr = []
-        
-        for s_name in sorted(grouped):
-            avg = round(sum(grouped[s_name]) / len(grouped[s_name]), 1)
-            arr.append("<strong>" + str(s_name) + "</strong>" + " - " + "<em>" + str(avg) + "</em>")
-        
-        for i in arr:
-            if i not in result:
-                result += i + "\n"
-    except HTTPError as e:
-        if e.code == 502:
-            return "В настоящее время на портале «Петербургское образование» ведутся технические работы. В ближайшее время портал возобновит свою работу. Приносим свои извинения за доставленные неудобства."
-        else:
-            return result
+    arr = []
+    
+    for s_name in sorted(grouped):
+        avg = round(sum(grouped[s_name]) / len(grouped[s_name]), 1)
+        arr.append("<strong>" + str(s_name) + "</strong>" + " - " + "<em>" + str(avg) + "</em>")
+    
+    for i in arr:
+        if i not in result:
+            result += i + "\n"
+
+    return result
 
 bot.polling()
