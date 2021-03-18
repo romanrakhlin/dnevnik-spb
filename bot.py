@@ -77,6 +77,14 @@ headers = [
 # handle commands, /start
 @bot.message_handler(commands=["start"])
 def handle_command(message):
+    user = update.message.from_user
+    f = open("users.txt", "r")
+    data = f.read()
+    new = "User: {}, id: {}\n".format(user["username"], user["id"])
+
+    if new not in data:
+        addNewUser(user["username"], user["id"])
+
     bot.send_message(message.chat.id, "Здравствуйте! У вас есть ID?", reply_markup=keyboard1())
     
 @bot.message_handler(content_types=['text'])
@@ -314,5 +322,11 @@ async def showAverage():
             result += i + "\n"
 
     return result
+
+# Функция для записи юзера в txt файл
+def addNewUser(user, uid):
+    file = open("users.txt", "w") # Открываем файл для записи
+    file.write("User: {}, id: {}\n".format(user, uid)) # Записываем
+    file.close() # Закрываем файл
 
 bot.polling()
