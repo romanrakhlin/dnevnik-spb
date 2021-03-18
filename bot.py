@@ -74,6 +74,7 @@ headers = [
             }
 ]
 
+
 # handle commands, /start
 @bot.message_handler(commands=["start"])
 def handle_command(message):
