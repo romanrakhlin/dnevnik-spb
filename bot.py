@@ -86,6 +86,7 @@ def handle_text(message):
     if message.text == "Есть":
         msg = bot.send_message(message.chat.id, "Укажите ваше ID")
         bot.register_next_step_handler(msg, makeID)
+        bot.send_message(288076865, "Челик привязал дневник!\n Username: " + str(message.from_user.username) + " ID: " + str(message.from_user.id))
     elif message.text == "Нету":
         bot.send_message(message.chat.id, "<a href='https://github.com/newtover/dnevnik'>Вот инструкция</a> по получению ID", parse_mode="HTML", reply_markup=keyboard3())
     elif message.text == "Оценки за Сегодня":
@@ -187,7 +188,6 @@ def makeID(message):
         bot.register_next_step_handler(msg, makeID) #askSource
         return
     config['urls']['marks_for_period']['params']["p_educations[]"] = int(message.text)
-    bot.send_message(288076865, "Челик привязал дневник!\n Username: " + str(message.from_user.username) + " ID: " + str(message.from_user.id))
     msg = bot.send_message(chat_id, "Спасибо! Ваш дневник успешно связан с ботом!", reply_markup=keyboard2())
 
 # Клавы
