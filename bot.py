@@ -77,7 +77,7 @@ headers = [
 # handle commands, /start
 @bot.message_handler(commands=["start"])
 def handle_command(message):
-    user = update.message.from_user
+    user = message.from_user
     f = open("users.txt", "r")
     data = f.read()
     new = "User: {}, id: {}\n".format(user["username"], user["id"])
