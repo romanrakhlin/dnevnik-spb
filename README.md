@@ -6,10 +6,10 @@
 
 ## Screenshots
 <p float="left">
-  <img src="/1.PNG" width="200"/>
-  <img src="/2.PNG" width="200"/>
-  <img src="/3.PNG" width="200"/>
-  <img src="/4.PNG" width="200"/>
+  <img src="/one.PNG" width="200"/>
+  <img src="/two.PNG" width="200"/>
+  <img src="/three.PNG" width="200"/>
+  <img src="/four.PNG" width="200"/>
 </p>
 
 ## Как это работает?
