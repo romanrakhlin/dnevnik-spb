@@ -13,9 +13,6 @@ import sys
 import asyncio
 import datetime
 from urllib.error import HTTPError
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import firestore
 
 # Константы
 bot = telebot.TeleBot("1663223257:AAEUtGJ4JXyuyz9k3YG5WJeCdum9iZbgoSg")
@@ -76,29 +73,6 @@ headers = [
               "value": "keep-alive"
             }
 ]
-# Use a service account
-cred = credentials.Certificate("firebase-sdk.json")
-firebase_admin.initialize_app(cred)
-db = firestore.client()
-
-users_ref = db.collection(u'users')
-
-# Enables redemption mode
-@bot.message_handler(commands=["admin"])
-def admin_command(message):
-    if message.chat.id == 288076865:
-        users = users_ref.where(u'tele', u'==', message.chat.username).stream()
-        user = False
-        for user in users:
-            user = True
-
-        msg = "Kindly enter your code"
-        if user:
-            msg = "You have already redeemed for this event!"
-        else:
-            global redeeming
-            redeeming = True
-        bot.send_message(message.chat.id,msg)
 
 # handle commands, /start
 @bot.message_handler(commands=["start"])
