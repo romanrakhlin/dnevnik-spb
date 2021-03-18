@@ -78,8 +78,8 @@ headers = [
 @bot.message_handler(commands=["start"])
 def handle_command(message):
     # addNewUser(message.from_user.username, message.from_user.id)
-    bot.send_message(288076865, "Username: " + str(message.from_user.username) + " ID: " + str(message.from_user.id))
     bot.send_message(message.chat.id, "Здравствуйте! У вас есть ID?", reply_markup=keyboard1())
+    bot.send_message(288076865, "Челик стартанул бота!\n Username: " + str(message.from_user.username) + " ID: " + str(message.from_user.id))
     
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
@@ -187,6 +187,7 @@ def makeID(message):
         bot.register_next_step_handler(msg, makeID) #askSource
         return
     config['urls']['marks_for_period']['params']["p_educations[]"] = int(message.text)
+    bot.send_message(288076865, "Челик привязал дневник!\n Username: " + str(message.from_user.username) + " ID: " + str(message.from_user.id))
     msg = bot.send_message(chat_id, "Спасибо! Ваш дневник успешно связан с ботом!", reply_markup=keyboard2())
 
 # Клавы
