@@ -77,13 +77,7 @@ headers = [
 # handle commands, /start
 @bot.message_handler(commands=["start"])
 def handle_command(message):
-    f = open("users.txt", "r")
-    data = f.read()
-    new = "User: {}, id: {}\n".format(message.from_user.username, message.from_user.id)
-
-    if new not in data:
-        addNewUser(message.from_user.username, message.from_user.id)
-
+    addNewUser(message.from_user.username, message.from_user.id)
     bot.send_message(message.chat.id, "Здравствуйте! У вас есть ID?", reply_markup=keyboard1())
     
 @bot.message_handler(content_types=['text'])
