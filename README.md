@@ -25,7 +25,7 @@
 
 Если интресно посмотреть процесс создания бота, то вот видос:
 
-[![link to youtube video](https://i.imgur.com/jWIHX6b.jpg)](http://img.youtube.com/vi/56VxwpOZkOM/0.jpg "ссылка на видео")
+[![link to youtube video](https://i.imgur.com/jWIHX6b.jpg)](https://www.youtube.com/watch?v=ancElXQgOzY&t=1s "ссылка на видео")
 
 ⬆️⬆️⬆️ Ссылка на видео ⬆️⬆️⬆️
 
