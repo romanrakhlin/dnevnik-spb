@@ -13,6 +13,9 @@ import sys
 import asyncio
 import datetime
 from urllib.error import HTTPError
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
 
 # Константы
 bot = telebot.TeleBot("1663223257:AAEUtGJ4JXyuyz9k3YG5WJeCdum9iZbgoSg")
@@ -72,21 +75,43 @@ headers = [
               "name": "Connection",
               "value": "keep-alive"
             }
-          ]
+]
+# Use a service account
+cred = credentials.Certificate("firebase-sdk.json")
+firebase_admin.initialize_app(cred)
+db = firestore.client()
+
+users_ref = db.collection(u'users')
+
+# Enables redemption mode
+@bot.message_handler(commands=["admin"])
+def admin_command(message):
+    if message.chat.id == 288076865:
+        users = users_ref.where(u'tele', u'==', message.chat.username).stream()
+        user = False
+        for user in users:
+            user = True
+
+        msg = "Kindly enter your code"
+        if user:
+            msg = "You have already redeemed for this event!"
+        else:
+            global redeeming
+            redeeming = True
+        bot.send_message(message.chat.id,msg)
 
 # handle commands, /start
 @bot.message_handler(commands=["start"])
 def handle_command(message):
     # addNewUser(message.from_user.username, message.from_user.id)
-    bot.send_message(message.chat.id, "Здравствуйте! У вас есть ID?", reply_markup=keyboard1())
     bot.send_message(288076865, "Челик стартанул бота!\n Username: " + str(message.from_user.username) + " ID: " + str(message.from_user.id))
+    bot.send_message(message.chat.id, "Здравствуйте! У вас есть ID?", reply_markup=keyboard1())
     
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
     if message.text == "Есть":
         msg = bot.send_message(message.chat.id, "Укажите ваше ID")
         bot.register_next_step_handler(msg, makeID)
-        bot.send_message(288076865, "Челик привязал дневник!\n Username: " + str(message.from_user.username) + " ID: " + str(message.from_user.id))
     elif message.text == "Нету":
         bot.send_message(message.chat.id, "<a href='https://github.com/newtover/dnevnik'>Вот инструкция</a> по получению ID", parse_mode="HTML", reply_markup=keyboard3())
     elif message.text == "Оценки за Сегодня":
@@ -188,6 +213,7 @@ def makeID(message):
         bot.register_next_step_handler(msg, makeID) #askSource
         return
     config['urls']['marks_for_period']['params']["p_educations[]"] = int(message.text)
+    bot.send_message(288076865, "Челик привязал дневник!\n Username: " + str(message.from_user.username) + " ID: " + str(message.from_user.id))
     msg = bot.send_message(chat_id, "Спасибо! Ваш дневник успешно связан с ботом!", reply_markup=keyboard2())
 
 # Клавы
